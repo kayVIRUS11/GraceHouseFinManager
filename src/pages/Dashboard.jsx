@@ -220,6 +220,7 @@ function Dashboard() {
         onUnlockArrears={handleUnlockArrears}
         arrearsUnlocked={arrearsUnlocked}
         getLastPaymentDate={getLastPaymentDate}
+        hideFinancialInputs
       />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
@@ -298,6 +299,7 @@ function Dashboard() {
         isOpen={isPinOpen}
         onClose={() => setIsPinOpen(false)}
         onVerify={handlePinVerify}
+        allowBackdropClose
       />
     </section>
   )

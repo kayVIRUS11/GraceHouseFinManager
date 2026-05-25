@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import { exportNodeToPdf } from '../utils/reportExport.js'
 
 const formatCurrency = (value) =>
   new Intl.NumberFormat('en-NG', {
@@ -13,6 +14,7 @@ const getMonthLabel = (value) => {
 }
 
 function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOutstanding }) {
+  const reportRef = useRef(null)
   const summary = useMemo(() => {
     const totalExpected = students.reduce(
       (acc, student) => acc + getAdjustedFee(student) + Number(student.arrears || 0),
@@ -69,11 +71,53 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
   const maxClass = Math.max(...classBreakdown.map((item) => item.expected), 1)
   const maxMethod = Math.max(...methodSplit.map((item) => item.amount), 1)
 
+  const handleExportSection = async (selector, filename) => {
+    if (!reportRef.current) return
+    const node = reportRef.current.querySelector(selector)
+    await exportNodeToPdf(node, filename)
+  }
+
+  const handleExportFull = async () => {
+    await exportNodeToPdf(reportRef.current, 'grace-house-report.pdf')
+  }
+
   return (
-    <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+    <section ref={reportRef} className="rounded-[32px] border border-[#e6ded4] bg-white/70 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-[#9c8f83]">Financial report</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[#1f1b17]">Grace House Term Overview</h3>
+          <p className="mt-2 text-sm text-[#7c6f63]">
+            Shareable report for school owners and stakeholders.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExportFull}
+            className="rounded-full bg-[#1f1b17] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed]"
+          >
+            Download full report
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]">
       <div className="grid gap-4">
-        <div className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
-          <h3 className="text-base font-semibold text-[#1f1b17]">Term summary</h3>
+        <div
+          className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]"
+          data-section="summary"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-base font-semibold text-[#1f1b17]">Term summary</h3>
+            <button
+              type="button"
+              onClick={() => handleExportSection('[data-section="summary"]', 'term-summary.pdf')}
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+            >
+              Download
+            </button>
+          </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-[#efe6da] bg-[#fefaf4] px-4 py-3">
               <p className="text-xs uppercase tracking-[0.2em] text-[#8b7c70]">Expected</p>
@@ -96,9 +140,23 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
           </div>
         </div>
 
-        <div className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
-          <h3 className="text-base font-semibold text-[#1f1b17]">Collections timeline</h3>
-          <p className="mt-1 text-sm text-[#7c6f63]">Last 6 months of receipts.</p>
+        <div
+          className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]"
+          data-section="timeline"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold text-[#1f1b17]">Collections timeline</h3>
+              <p className="mt-1 text-sm text-[#7c6f63]">Last 6 months of receipts.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleExportSection('[data-section="timeline"]', 'collections-timeline.pdf')}
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+            >
+              Download
+            </button>
+          </div>
           <div className="mt-4 grid gap-3">
             {timeline.length === 0 ? (
               <p className="text-sm text-[#8b7c70]">No payments yet.</p>
@@ -123,8 +181,20 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
       </div>
 
       <div className="grid gap-4">
-        <div className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
-          <h3 className="text-base font-semibold text-[#1f1b17]">Class breakdown</h3>
+        <div
+          className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]"
+          data-section="classes"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-base font-semibold text-[#1f1b17]">Class breakdown</h3>
+            <button
+              type="button"
+              onClick={() => handleExportSection('[data-section="classes"]', 'class-breakdown.pdf')}
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+            >
+              Download
+            </button>
+          </div>
           <div className="mt-4 grid gap-3">
             {classBreakdown.map((row) => (
               <div key={row.level} className="rounded-2xl border border-[#efe6da] bg-[#fefaf4] px-4 py-3">
@@ -146,8 +216,20 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
           </div>
         </div>
 
-        <div className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
-          <h3 className="text-base font-semibold text-[#1f1b17]">Payment methods</h3>
+        <div
+          className="rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]"
+          data-section="methods"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-base font-semibold text-[#1f1b17]">Payment methods</h3>
+            <button
+              type="button"
+              onClick={() => handleExportSection('[data-section="methods"]', 'payment-methods.pdf')}
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+            >
+              Download
+            </button>
+          </div>
           <div className="mt-4 grid gap-3">
             {methodSplit.map((row) => (
               <div key={row.method} className="grid gap-2">
@@ -167,6 +249,7 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
         </div>
       </div>
     </div>
+    </section>
   )
 }
 

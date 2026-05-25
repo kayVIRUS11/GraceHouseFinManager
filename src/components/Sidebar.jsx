@@ -71,7 +71,10 @@ function Sidebar({ onClose, showClose = false }) {
           ) : (
             <button
               type="button"
-              onClick={() => setIsPinOpen(true)}
+              onClick={() => {
+                setIsPinOpen(true)
+                if (onClose) onClose()
+              }}
               className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-[#4d443b] transition hover:bg-[#efe6da]"
             >
               <Lock size={18} />

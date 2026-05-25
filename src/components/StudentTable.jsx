@@ -21,7 +21,8 @@ function StudentTable({
   onExportLedger,
   onUnlockArrears,
   arrearsUnlocked,
-  getLastPaymentDate
+  getLastPaymentDate,
+  hideFinancialInputs = false
 }) {
   const [query, setQuery] = useState('')
   const [filterClass, setFilterClass] = useState('All')
@@ -130,8 +131,8 @@ function StudentTable({
             <tr>
               <th className="px-6 py-3">Student</th>
               <th className="px-6 py-3">Term fee</th>
-              <th className="px-6 py-3">Scholarship</th>
-              <th className="px-6 py-3">Arrears</th>
+              {hideFinancialInputs ? null : <th className="px-6 py-3">Scholarship</th>}
+              {hideFinancialInputs ? null : <th className="px-6 py-3">Arrears</th>}
               <th className="px-6 py-3">Total paid</th>
               <th className="px-6 py-3">Outstanding</th>
               <th className="px-6 py-3">History</th>
@@ -152,40 +153,44 @@ function StudentTable({
                     <p className="text-xs text-[#8b7c70]">{student.class_level}</p>
                   </td>
                   <td className="px-6 py-4">{formatCurrency(fee)}</td>
-                  <td className="px-6 py-4">
-                    <input
-                      type="number"
-                      min="0"
-                      value={student.adjusted_fee || ''}
-                      onChange={(event) =>
-                        updateStudent(student.id, { adjusted_fee: Number(event.target.value || 0) })
-                      }
-                      placeholder="0"
-                      className="w-28 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm"
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                  {hideFinancialInputs ? null : (
+                    <td className="px-6 py-4">
                       <input
                         type="number"
                         min="0"
-                        value={student.arrears || ''}
+                        value={student.adjusted_fee || ''}
                         onChange={(event) =>
-                          updateStudent(student.id, { arrears: Number(event.target.value || 0) })
+                          updateStudent(student.id, { adjusted_fee: Number(event.target.value || 0) })
                         }
                         placeholder="0"
-                        disabled={!arrearsUnlocked}
-                        className="w-28 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm disabled:bg-[#fdf7f0]"
+                        className="w-28 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm"
                       />
-                      <button
-                        type="button"
-                        onClick={() => onUnlockArrears(student)}
-                        className="rounded-full border border-[#e5ddd2] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7c6f63]"
-                      >
-                        Unlock
-                      </button>
-                    </div>
-                  </td>
+                    </td>
+                  )}
+                  {hideFinancialInputs ? null : (
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          value={student.arrears || ''}
+                          onChange={(event) =>
+                            updateStudent(student.id, { arrears: Number(event.target.value || 0) })
+                          }
+                          placeholder="0"
+                          disabled={!arrearsUnlocked}
+                          className="w-28 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm disabled:bg-[#fdf7f0]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => onUnlockArrears(student)}
+                          className="rounded-full border border-[#e5ddd2] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7c6f63] transition hover:border-[#1f1b17] hover:text-[#1f1b17]"
+                        >
+                          Unlock
+                        </button>
+                      </div>
+                    </td>
+                  )}
                   <td className="px-6 py-4">{formatCurrency(totalPaid)}</td>
                   <td className="px-6 py-4">
                     <span
@@ -202,7 +207,7 @@ function StudentTable({
                     <button
                       type="button"
                       onClick={() => onViewHistory(student)}
-                      className="rounded-full border border-[#1f1b17] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#1f1b17]"
+                      className="rounded-full border border-[#1f1b17] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#1f1b17] transition hover:bg-[#1f1b17] hover:text-[#fef7ed]"
                     >
                       View
                     </button>

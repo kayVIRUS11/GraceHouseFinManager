@@ -148,6 +148,7 @@ function Students() {
         isOpen={isPinOpen}
         onClose={() => setIsPinOpen(false)}
         onVerify={handlePinVerify}
+        allowBackdropClose
       />
     </section>
   )

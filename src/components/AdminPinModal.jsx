@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 
-function AdminPinModal({ isOpen, onClose, onVerify }) {
+function AdminPinModal({ isOpen, onClose, onVerify, allowBackdropClose = false }) {
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
 
@@ -17,9 +18,17 @@ function AdminPinModal({ isOpen, onClose, onVerify }) {
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1f1b17]/60 px-4 py-8 backdrop-blur">
-      <div className="w-full max-w-sm rounded-[24px] border border-[#efe6da] bg-[#fefaf4] p-6 shadow-[0_30px_60px_-30px_rgba(15,12,8,0.7)]">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#1f1b17]/60 px-4 py-8 backdrop-blur"
+      onClick={allowBackdropClose ? onClose : undefined}
+      role="presentation"
+    >
+      <div
+        className="w-full max-w-sm rounded-[24px] border border-[#efe6da] bg-[#fefaf4] p-6 shadow-[0_30px_60px_-30px_rgba(15,12,8,0.7)]"
+        onClick={(event) => event.stopPropagation()}
+        role="presentation"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.26em] text-[#8b7c70]">Admin access</p>
@@ -53,7 +62,8 @@ function AdminPinModal({ isOpen, onClose, onVerify }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
