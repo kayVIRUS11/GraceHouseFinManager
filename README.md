@@ -1,2 +1,3 @@
 # GraceHouseFinManager
-A simple financial manager for Grace House International School
+
+Financial manager for Grace House International School.
