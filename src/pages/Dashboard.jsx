@@ -1,20 +1,14 @@
 import { useMemo, useState } from 'react'
-import { useSchool } from '../context/SchoolContext.jsx'
+import { useSchool } from '../context/school-context.js'
 import StatsCard from '../components/StatsCard.jsx'
 import InstallmentModal from '../components/InstallmentModal.jsx'
 import PaymentLog from '../components/PaymentLog.jsx'
 import StudentTable from '../components/StudentTable.jsx'
 import AddStudentModal from '../components/AddStudentModal.jsx'
 import StudentDetailDrawer from '../components/StudentDetailDrawer.jsx'
-import AdminPinModal from '../components/AdminPinModal.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    maximumFractionDigits: 0
-  }).format(value)
+import { useAuth } from '../context/auth-context.js'
+import { formatCurrency } from '../utils/formatters.js'
+import { downloadCsv } from '../utils/csvExport.js'
 
 function Dashboard() {
   const {
@@ -31,28 +25,20 @@ function Dashboard() {
     logPayment,
     issueReceipt,
     getLastPaymentDate,
-    verifyAdminPin,
     addStudent
   } = useSchool()
-  const { signOut } = useAuth()
+  const { signOut, isAdmin } = useAuth()
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false)
   const [detailStudent, setDetailStudent] = useState(null)
   const [paymentStudent, setPaymentStudent] = useState(null)
-  const [arrearsUnlocked, setArrearsUnlocked] = useState(false)
-  const [isPinOpen, setIsPinOpen] = useState(false)
 
   const stats = useMemo(() => {
-    const totalExpected = students.reduce(
-      (acc, student) => acc + getAdjustedFee(student) + Number(student.arrears || 0),
-      0
-    )
-    const totalCollected = payments.reduce((acc, payment) => acc + Number(payment.amount || 0), 0)
-    const totalOutstanding = students.reduce(
-      (acc, student) => acc + Math.max(getOutstanding(student.id), 0),
-      0
-    )
-    return { totalExpected, totalCollected, totalOutstanding }
-  }, [students, payments, getAdjustedFee, getOutstanding])
+    const totalStudents = students.length
+    const owing = students.filter((student) => getOutstanding(student.id) > 0).length
+    const cleared = totalStudents - owing
+    const pendingReceipts = payments.filter((payment) => !payment.issued).length
+    return { totalStudents, owing, cleared, pendingReceipts }
+  }, [students, payments, getOutstanding])
 
   const owingStudents = useMemo(
     () => students.filter((student) => getOutstanding(student.id) > 0),
@@ -66,16 +52,7 @@ function Dashboard() {
       student.class_level,
       getOutstanding(student.id)
     ])
-    const csv = [header, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'grace-house-debtors.csv'
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadCsv('grace-house-debtors.csv', header, rows)
   }
 
   const handleExportLedgerAll = () => {
@@ -92,19 +69,7 @@ function Dashboard() {
         payment.issued ? 'Yes' : 'No'
       ]
     })
-    if (rows.length === 0) {
-      return
-    }
-    const csv = [header, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'grace-house-ledger.csv'
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadCsv('grace-house-ledger.csv', header, rows)
   }
 
   const handleLogPayment = ({ amount, method }) => {
@@ -123,33 +88,9 @@ function Dashboard() {
       payment.method,
       payment.issued ? 'Yes' : 'No'
     ])
-    if (rows.length === 0) {
-      return
-    }
-    const csv = [header, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${student.first_name}-${student.last_name}-ledger.csv`
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadCsv(`${student.first_name}-${student.last_name}-ledger.csv`, header, rows)
   }
 
-  const handleUnlockArrears = () => {
-    setIsPinOpen(true)
-  }
-
-  const handlePinVerify = (pin) => {
-    const ok = verifyAdminPin(pin)
-    if (ok) {
-      setArrearsUnlocked(true)
-      setIsPinOpen(false)
-    }
-    return ok
-  }
 
   return (
     <section className="flex flex-col gap-6">
@@ -158,11 +99,11 @@ function Dashboard() {
           Loading saved data...
         </div>
       ) : null}
-      <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#e6ded4] bg-white/80 p-6 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
+      <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#e6ded4] bg-white/80 p-5 shadow-[0_24px_50px_-40px_rgba(31,27,23,0.55)] md:p-6">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-[#9c8f83]">{termInfo.term}</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1f1b17]">Grace House School</h2>
-          <p className="mt-2 text-sm text-[#7c6f63]">Session {termInfo.session}</p>
+          <p className="text-[10px] uppercase tracking-[0.28em] text-[#9c8f83] md:text-xs">{termInfo.term}</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#1f1b17] md:text-2xl">Grace House School</h2>
+          <p className="mt-2 text-xs text-[#7c6f63] md:text-sm">Session {termInfo.session}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="rounded-2xl border border-dashed border-[#e5ddd2] bg-[#fdf7f0] px-4 py-3 text-sm text-[#7c6f63]">
@@ -181,7 +122,7 @@ function Dashboard() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-[#1f1b17]">Quick actions</h3>
-          <p className="text-sm text-[#7c6f63]">Add or search students without leaving the dashboard.</p>
+          <p className="text-xs text-[#7c6f63] md:text-sm">Add or search students without leaving the dashboard.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -194,10 +135,43 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="Total expected income" value={formatCurrency(stats.totalExpected)} helper="Term fee + arrears" />
-        <StatsCard label="Total revenue collected" value={formatCurrency(stats.totalCollected)} helper="All logged payments" />
-        <StatsCard label="Total outstanding debt" value={formatCurrency(stats.totalOutstanding)} helper="Parents still owing" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          label="Total students"
+          value={stats.totalStudents}
+          helper="Active roster"
+          className="p-4"
+          labelClassName="tracking-[0.2em]"
+          valueClassName="text-xl"
+          helperClassName="text-xs"
+        />
+        <StatsCard
+          label="Students cleared"
+          value={stats.cleared}
+          helper="Paid in full"
+          className="p-4"
+          labelClassName="tracking-[0.2em]"
+          valueClassName="text-xl"
+          helperClassName="text-xs"
+        />
+        <StatsCard
+          label="Students owing"
+          value={stats.owing}
+          helper="Outstanding balances"
+          className="p-4"
+          labelClassName="tracking-[0.2em]"
+          valueClassName="text-xl"
+          helperClassName="text-xs"
+        />
+        <StatsCard
+          label="Pending receipts"
+          value={stats.pendingReceipts}
+          helper="Awaiting issuance"
+          className="p-4"
+          labelClassName="tracking-[0.2em]"
+          valueClassName="text-xl"
+          helperClassName="text-xs"
+        />
       </div>
 
       {missingReceipts.length > 0 ? (
@@ -217,10 +191,10 @@ function Dashboard() {
         onOpenDetails={setDetailStudent}
         onLogPayment={setPaymentStudent}
         onExportLedger={handleExportStudentLedger}
-        onUnlockArrears={handleUnlockArrears}
-        arrearsUnlocked={arrearsUnlocked}
+        arrearsUnlocked={isAdmin}
         getLastPaymentDate={getLastPaymentDate}
         hideFinancialInputs
+        compact
       />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
@@ -287,20 +261,15 @@ function Dashboard() {
         }}
       />
 
-      <InstallmentModal
-        isOpen={Boolean(paymentStudent)}
-        entity={paymentStudent}
-        balance={paymentStudent ? getOutstanding(paymentStudent.id) : 0}
-        onClose={() => setPaymentStudent(null)}
-        onSubmit={handleLogPayment}
-      />
-
-      <AdminPinModal
-        isOpen={isPinOpen}
-        onClose={() => setIsPinOpen(false)}
-        onVerify={handlePinVerify}
-        allowBackdropClose
-      />
+      {paymentStudent ? (
+        <InstallmentModal
+          isOpen
+          entity={paymentStudent}
+          balance={getOutstanding(paymentStudent.id)}
+          onClose={() => setPaymentStudent(null)}
+          onSubmit={handleLogPayment}
+        />
+      ) : null}
     </section>
   )
 }

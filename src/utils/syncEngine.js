@@ -10,6 +10,7 @@ const ensureDeviceId = () => {
   localStorage.setItem(DEVICE_ID_KEY, id)
   return id
 }
+export const getDeviceId = () => ensureDeviceId()
 
 export const queueOp = async (type, payload) => {
   const deviceId = ensureDeviceId()

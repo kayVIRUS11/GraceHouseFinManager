@@ -1,12 +1,7 @@
 import { useMemo } from 'react'
-import { useSchool } from '../context/SchoolContext.jsx'
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    maximumFractionDigits: 0
-  }).format(value)
+import { useSchool } from '../context/school-context.js'
+import { formatCurrency } from '../utils/formatters.js'
+import { downloadCsv } from '../utils/csvExport.js'
 
 function PendingReceipts() {
   const { payments, students, issueReceipt } = useSchool()
@@ -29,17 +24,7 @@ function PendingReceipts() {
         payment.method
       ]
     })
-    if (rows.length === 0) return
-    const csv = [header, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'grace-house-pending-receipts.csv'
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadCsv('grace-house-pending-receipts.csv', header, rows)
   }
 
   return (

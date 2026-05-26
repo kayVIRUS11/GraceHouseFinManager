@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../context/auth-context.js'
 
 function AuthGate({ children }) {
   const { session, loading, error, isOnline, signIn } = useAuth()

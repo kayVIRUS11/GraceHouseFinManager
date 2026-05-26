@@ -5,7 +5,8 @@ import Dashboard from './pages/Dashboard.jsx'
 import Students from './pages/Students.jsx'
 import Admin from './pages/Admin.jsx'
 import PendingReceipts from './pages/PendingReceipts.jsx'
-import { useSchool } from './context/SchoolContext.jsx'
+import { useSchool } from './context/school-context.js'
+import AdminRoute from './components/AdminRoute.jsx'
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -74,7 +75,14 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/students" element={<Students />} />
               <Route path="/receipts" element={<PendingReceipts />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <Admin />
+                  </AdminRoute>
+                }
+              />
             </Routes>
           </main>
         </div>

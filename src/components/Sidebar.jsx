@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { LayoutGrid, Users, Settings, Lock, Receipt } from 'lucide-react'
-import { useSchool } from '../context/SchoolContext.jsx'
-import AdminPinModal from './AdminPinModal.jsx'
+import { useSchool } from '../context/school-context.js'
+import { useAuth } from '../context/auth-context.js'
 
 const navLinkClass = ({ isActive }) =>
   `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
@@ -12,17 +11,8 @@ const navLinkClass = ({ isActive }) =>
   }`
 
 function Sidebar({ onClose, showClose = false }) {
-  const { adminUnlocked, verifyAdminPin, lockAdmin } = useSchool()
-  const [isPinOpen, setIsPinOpen] = useState(false)
-  const navigate = useNavigate()
-
-  const handleUnlock = (pin) => {
-    const ok = verifyAdminPin(pin)
-    if (ok) {
-      navigate('/admin')
-    }
-    return ok
-  }
+  const { termInfo } = useSchool()
+  const { isAdmin, role } = useAuth()
 
   return (
     <aside className="h-full w-full shrink-0 rounded-[28px] border border-[#e5ddd2] bg-[#fefaf4] p-6 shadow-[0_18px_45px_-35px_rgba(31,27,23,0.55)]">
@@ -48,7 +38,9 @@ function Sidebar({ onClose, showClose = false }) {
         </div>
         <div className="rounded-2xl border border-[#eadfd3] bg-[#f4eadf] px-4 py-3">
           <p className="text-xs text-[#7c6f63]">Current term</p>
-          <p className="mt-1 text-sm font-semibold text-[#1f1b17]">2026 Term 1</p>
+          <p className="mt-1 text-sm font-semibold text-[#1f1b17]">
+            {termInfo.session} · {termInfo.term}
+          </p>
         </div>
         <nav className="flex flex-col gap-2">
           <NavLink to="/" className={navLinkClass} end>
@@ -63,34 +55,16 @@ function Sidebar({ onClose, showClose = false }) {
             <Receipt size={18} />
             Pending receipts
           </NavLink>
-          {adminUnlocked ? (
+          {isAdmin ? (
             <NavLink to="/admin" className={navLinkClass}>
               <Settings size={18} />
               Admin
             </NavLink>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setIsPinOpen(true)
-                if (onClose) onClose()
-              }}
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-[#4d443b] transition hover:bg-[#efe6da]"
-            >
-              <Lock size={18} />
-              Admin
-            </button>
-          )}
+          ) : null}
         </nav>
-        {adminUnlocked ? (
-          <button
-            type="button"
-            onClick={lockAdmin}
-            className="rounded-full border border-[#e5ddd2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7c6f63]"
-          >
-            Lock admin
-          </button>
-        ) : null}
+        <div className="rounded-2xl border border-[#efe6da] bg-white px-4 py-3 text-xs text-[#7c6f63]">
+          Signed in role: <span className="font-semibold text-[#1f1b17]">{role}</span>
+        </div>
         <div className="rounded-2xl border border-dashed border-[#e5ddd2] px-4 py-4">
           <p className="text-xs text-[#8b7c70]">Next payout reminder</p>
           <p className="mt-2 text-sm font-semibold text-[#1f1b17]">
@@ -98,11 +72,6 @@ function Sidebar({ onClose, showClose = false }) {
           </p>
         </div>
       </div>
-      <AdminPinModal
-        isOpen={isPinOpen}
-        onClose={() => setIsPinOpen(false)}
-        onVerify={handleUnlock}
-      />
     </aside>
   )
 }

@@ -1,12 +1,6 @@
 import { useMemo, useState } from 'react'
 import QuickActionsMenu from './QuickActionsMenu.jsx'
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    maximumFractionDigits: 0
-  }).format(value)
+import { formatCurrency } from '../utils/formatters.js'
 
 function StudentTable({
   students,
@@ -19,10 +13,10 @@ function StudentTable({
   onOpenDetails,
   onLogPayment,
   onExportLedger,
-  onUnlockArrears,
   arrearsUnlocked,
   getLastPaymentDate,
-  hideFinancialInputs = false
+  hideFinancialInputs = false,
+  compact = false
 }) {
   const [query, setQuery] = useState('')
   const [filterClass, setFilterClass] = useState('All')
@@ -78,11 +72,11 @@ function StudentTable({
   ])
 
   return (
-    <div className="rounded-3xl border border-[#e6ded4] bg-white/80 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)]">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#efe6da] px-6 py-5">
+    <div className={`rounded-3xl border border-[#e6ded4] bg-white/80 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)] ${compact ? 'shadow-[0_10px_25px_-30px_rgba(31,27,23,0.5)]' : ''}`}>
+      <div className={`flex flex-wrap items-center justify-between gap-3 border-b border-[#efe6da] ${compact ? 'px-4 py-4' : 'px-6 py-5'}`}>
         <div>
           <h2 className="text-lg font-semibold text-[#1f1b17]">Student fee directory</h2>
-          <p className="text-sm text-[#7c6f63]">Search by name or filter by class.</p>
+          <p className={`text-sm text-[#7c6f63] ${compact ? 'text-xs' : ''}`}>Search by name or filter by class.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <input
@@ -125,8 +119,64 @@ function StudentTable({
           </button>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+      <div className="md:hidden">
+        <div className="grid gap-3 px-4 py-4">
+          {filtered.map((student) => {
+            const fee = getAdjustedFee(student)
+            const totalPaid = getTotalPaid(student.id)
+            const outstanding = getOutstanding(student.id)
+            const isCleared = outstanding <= 0
+
+            return (
+              <div key={student.id} className="rounded-2xl border border-[#efe6da] bg-[#fefaf4] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#1f1b17]">{student.first_name} {student.last_name}</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-[#8b7c70]">{student.class_level}</p>
+                  </div>
+                  <QuickActionsMenu
+                    onView={() => onOpenDetails(student)}
+                    onLogPayment={() => onLogPayment(student)}
+                    onExportLedger={() => onExportLedger(student)}
+                  />
+                </div>
+                <div className="mt-4 grid gap-2 text-xs text-[#7c6f63]">
+                  <div className="flex items-center justify-between">
+                    <span>Term fee</span>
+                    <span className="font-semibold text-[#1f1b17]">{formatCurrency(fee)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Total paid</span>
+                    <span className="font-semibold text-[#1f1b17]">{formatCurrency(totalPaid)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Outstanding</span>
+                    <span className={`font-semibold ${isCleared ? 'text-[#2b5d3c]' : 'text-[#6b2f2a]'}`}>
+                      {formatCurrency(outstanding)}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => onViewHistory(student)}
+                    className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1f1b17] transition hover:bg-[#1f1b17] hover:text-[#fef7ed]"
+                  >
+                    View history
+                  </button>
+                  {!hideFinancialInputs ? (
+                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#8b7c70]">
+                      {arrearsUnlocked ? 'Admin access' : 'Admin only'}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <div className="hidden overflow-x-auto md:block">
+        <table className={`min-w-full text-left ${compact ? 'text-xs' : 'text-sm'}`}>
           <thead className="bg-[#fdf7f0] text-xs uppercase tracking-[0.2em] text-[#8b7c70]">
             <tr>
               <th className="px-6 py-3">Student</th>
@@ -148,13 +198,13 @@ function StudentTable({
 
               return (
                 <tr key={student.id} className="text-[#1f1b17]">
-                  <td className="px-6 py-4">
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
                     <p className="font-semibold">{student.first_name} {student.last_name}</p>
                     <p className="text-xs text-[#8b7c70]">{student.class_level}</p>
                   </td>
-                  <td className="px-6 py-4">{formatCurrency(fee)}</td>
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>{formatCurrency(fee)}</td>
                   {hideFinancialInputs ? null : (
-                    <td className="px-6 py-4">
+                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
                       <input
                         type="number"
                         min="0"
@@ -163,13 +213,13 @@ function StudentTable({
                           updateStudent(student.id, { adjusted_fee: Number(event.target.value || 0) })
                         }
                         placeholder="0"
-                        className="w-28 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm"
+                        className="w-24 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm"
                       />
                     </td>
                   )}
                   {hideFinancialInputs ? null : (
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
+                      <div className="grid gap-2">
                         <input
                           type="number"
                           min="0"
@@ -179,20 +229,18 @@ function StudentTable({
                           }
                           placeholder="0"
                           disabled={!arrearsUnlocked}
-                          className="w-28 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm disabled:bg-[#fdf7f0]"
+                          className="w-24 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm disabled:bg-[#fdf7f0]"
                         />
-                        <button
-                          type="button"
-                          onClick={() => onUnlockArrears(student)}
-                          className="rounded-full border border-[#e5ddd2] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7c6f63] transition hover:border-[#1f1b17] hover:text-[#1f1b17]"
-                        >
-                          Unlock
-                        </button>
+                        {!arrearsUnlocked ? (
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b7c70]">
+                            Admin only
+                          </p>
+                        ) : null}
                       </div>
                     </td>
                   )}
-                  <td className="px-6 py-4">{formatCurrency(totalPaid)}</td>
-                  <td className="px-6 py-4">
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>{formatCurrency(totalPaid)}</td>
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
                         isCleared
@@ -203,7 +251,7 @@ function StudentTable({
                       {formatCurrency(outstanding)}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
                     <button
                       type="button"
                       onClick={() => onViewHistory(student)}
@@ -212,7 +260,7 @@ function StudentTable({
                       View
                     </button>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
                     <QuickActionsMenu
                       onView={() => onOpenDetails(student)}
                       onLogPayment={() => onLogPayment(student)}

@@ -1,12 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { exportNodeToPdf } from '../utils/reportExport.js'
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    maximumFractionDigits: 0
-  }).format(value)
+import { formatCurrency } from '../utils/formatters.js'
 
 const getMonthLabel = (value) => {
   const [year, month] = value.split('-')

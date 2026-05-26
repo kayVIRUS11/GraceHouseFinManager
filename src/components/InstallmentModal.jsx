@@ -1,23 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { paymentMethods } from '../data/paymentMethods.js'
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    maximumFractionDigits: 0
-  }).format(value)
+import { formatCurrency } from '../utils/formatters.js'
 
 function InstallmentModal({ isOpen, entity, balance, onClose, onSubmit }) {
   const [amount, setAmount] = useState('')
   const [method, setMethod] = useState(paymentMethods[0].value)
-
-  useEffect(() => {
-    if (isOpen) {
-      setAmount('')
-      setMethod(paymentMethods[0].value)
-    }
-  }, [isOpen])
 
   const amountValue = useMemo(() => Number(amount || 0), [amount])
   const newBalance = Math.max(balance - amountValue, 0)

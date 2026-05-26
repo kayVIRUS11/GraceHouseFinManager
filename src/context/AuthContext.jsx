@@ -1,7 +1,19 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../utils/supabase.js'
+import { AuthContext } from './auth-context.js'
 
-const AuthContext = createContext()
+const ADMIN_ROLES = new Set(['admin', 'owner'])
+const FINANCE_ROLES = new Set(['admin', 'owner', 'bursar', 'finance'])
+
+const getRoleFromSession = (session) => {
+  const appRole = session?.user?.app_metadata?.role
+  const userRole = session?.user?.user_metadata?.role
+  const role = appRole || userRole
+  if (typeof role === 'string' && role.trim().length > 0) {
+    return role.trim().toLowerCase()
+  }
+  return 'viewer'
+}
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null)
@@ -50,13 +62,24 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     await supabase.auth.signOut()
   }
+  const role = useMemo(() => getRoleFromSession(session), [session])
+  const isAdmin = ADMIN_ROLES.has(role)
+  const isFinanceStaff = FINANCE_ROLES.has(role)
 
   const value = useMemo(
-    () => ({ session, loading, error, isOnline, signIn, signOut }),
-    [session, loading, error, isOnline]
+    () => ({
+      session,
+      loading,
+      error,
+      isOnline,
+      role,
+      isAdmin,
+      isFinanceStaff,
+      signIn,
+      signOut
+    }),
+    [session, loading, error, isOnline, role, isAdmin, isFinanceStaff]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-
-export const useAuth = () => useContext(AuthContext)

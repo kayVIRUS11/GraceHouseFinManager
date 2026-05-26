@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   classLevels,
   initialFees,
@@ -7,11 +7,45 @@ import {
   initialTerm
 } from '../data/schoolData.js'
 import { loadState, saveLastSync, saveState } from '../utils/storage.js'
-import { pullOps, pushOps, queueOp } from '../utils/syncEngine.js'
-
-const SchoolContext = createContext()
+import { getDeviceId, pullOps, pushOps, queueOp } from '../utils/syncEngine.js'
+import { SchoolContext } from './school-context.js'
 
 const getNextReceipt = (index) => `GHS-${String(index).padStart(4, '0')}`
+const toNumber = (value) => Number(value || 0)
+
+const getStudentFee = (student, feeMap) => {
+  const baseFee = feeMap[student.class_level] || 0
+  return toNumber(student.adjusted_fee) > 0 ? toNumber(student.adjusted_fee) : toNumber(baseFee)
+}
+
+const getOutstandingForStudent = (student, feeMap, paymentRecords) => {
+  const totalPaid = paymentRecords
+    .filter((payment) => payment.student_id === student.id)
+    .reduce((acc, payment) => acc + toNumber(payment.amount), 0)
+  return getStudentFee(student, feeMap) + toNumber(student.arrears) - totalPaid
+}
+
+const promoteStudentRecords = (studentRecords, feeMap, paymentRecords) =>
+  studentRecords.map((student) => {
+    const currentIndex = classLevels.indexOf(student.class_level)
+    const nextClass =
+      currentIndex >= 0 && currentIndex < classLevels.length - 1
+        ? classLevels[currentIndex + 1]
+        : student.class_level
+    const outstanding = getOutstandingForStudent(student, feeMap, paymentRecords)
+    return {
+      ...student,
+      class_level: nextClass,
+      arrears: Math.max(outstanding, 0),
+      adjusted_fee: 0
+    }
+  })
+
+const parseReceiptIndex = (receiptNumber) => {
+  const match = String(receiptNumber || '').match(/^GHS-(\d+)$/)
+  if (!match) return null
+  return Number(match[1])
+}
 
 export const SchoolProvider = ({ children }) => {
   const [students, setStudents] = useState(initialStudents)
@@ -19,16 +53,13 @@ export const SchoolProvider = ({ children }) => {
   const [payments, setPayments] = useState(initialPayments)
   const [termInfo, setTermInfo] = useState(initialTerm)
   const [receiptIndex, setReceiptIndex] = useState(initialPayments.length + 1)
-  const [adminPin, setAdminPin] = useState('1234')
-  const [adminUnlocked, setAdminUnlocked] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const [syncStatus, setSyncStatus] = useState('idle')
   const [lastSyncAt, setLastSyncAt] = useState(null)
   const [syncError, setSyncError] = useState(null)
 
   const getAdjustedFee = (student) => {
-    const baseFee = fees[student.class_level] || 0
-    return student.adjusted_fee > 0 ? student.adjusted_fee : baseFee
+    return getStudentFee(student, fees)
   }
 
   const getTotalPaid = (studentId) =>
@@ -46,17 +77,15 @@ export const SchoolProvider = ({ children }) => {
   const getOutstanding = (studentId) => {
     const student = students.find((entry) => entry.id === studentId)
     if (!student) return 0
-    const fee = getAdjustedFee(student)
-    const totalPaid = getTotalPaid(studentId)
-    return fee + Number(student.arrears || 0) - totalPaid
+    return getOutstandingForStudent(student, fees, payments)
   }
 
   const addStudent = (studentData) => {
     const newStudent = {
       ...studentData,
-      id: `stu_${Date.now()}`,
-      adjusted_fee: Number(studentData.adjusted_fee || 0),
-      arrears: Number(studentData.arrears || 0)
+      id: `stu_${crypto.randomUUID()}`,
+      adjusted_fee: toNumber(studentData.adjusted_fee),
+      arrears: toNumber(studentData.arrears)
     }
     setStudents((prev) => [
       ...prev,
@@ -82,9 +111,9 @@ export const SchoolProvider = ({ children }) => {
   const logPayment = ({ studentId, amount, method }) => {
     const receiptNumber = getNextReceipt(receiptIndex)
     const newPayment = {
-      id: `pay_${Date.now()}`,
+      id: `pay_${crypto.randomUUID()}`,
       student_id: studentId,
-      amount: Number(amount),
+      amount: toNumber(amount),
       method,
       date: new Date().toISOString(),
       receipt_number: receiptNumber,
@@ -114,9 +143,9 @@ export const SchoolProvider = ({ children }) => {
   const updateFee = (classLevel, amount) => {
     setFees((prev) => ({
       ...prev,
-      [classLevel]: Number(amount)
+      [classLevel]: toNumber(amount)
     }))
-    queueOp('update_fee', { classLevel, amount: Number(amount) })
+    queueOp('update_fee', { classLevel, amount: toNumber(amount) })
   }
 
   const updateTermInfo = (nextTerm) => {
@@ -124,39 +153,8 @@ export const SchoolProvider = ({ children }) => {
     queueOp('update_term', nextTerm)
   }
 
-  const verifyAdminPin = (pin) => {
-    const isValid = pin === adminPin
-    if (isValid) {
-      setAdminUnlocked(true)
-    }
-    return isValid
-  }
-
-  const lockAdmin = () => {
-    setAdminUnlocked(false)
-  }
-
-  const changeAdminPin = (nextPin) => {
-    setAdminPin(nextPin)
-  }
-
   const promoteStudents = () => {
-    setStudents((prev) =>
-      prev.map((student) => {
-        const currentIndex = classLevels.indexOf(student.class_level)
-        const nextClass =
-          currentIndex >= 0 && currentIndex < classLevels.length - 1
-            ? classLevels[currentIndex + 1]
-            : student.class_level
-        const outstanding = getOutstanding(student.id)
-        return {
-          ...student,
-          class_level: nextClass,
-          arrears: Math.max(outstanding, 0),
-          adjusted_fee: 0
-        }
-      })
-    )
+    setStudents((prev) => promoteStudentRecords(prev, fees, payments))
     setPayments([])
     setReceiptIndex(1)
     queueOp('promote_students', { at: new Date().toISOString() })
@@ -171,8 +169,8 @@ export const SchoolProvider = ({ children }) => {
         setFees(stored.fees || initialFees)
         setPayments(stored.payments || initialPayments)
         setTermInfo(stored.termInfo || initialTerm)
-        setReceiptIndex(stored.receiptIndex || initialPayments.length + 1)
-        setAdminPin(stored.adminPin || '1234')
+        const nextReceiptIndex = Number(stored.receiptIndex)
+        setReceiptIndex(nextReceiptIndex > 0 ? nextReceiptIndex : initialPayments.length + 1)
         setLastSyncAt(stored.lastSyncAt || null)
       })
       .finally(() => {
@@ -192,13 +190,12 @@ export const SchoolProvider = ({ children }) => {
       payments,
       termInfo,
       receiptIndex,
-      adminPin,
       lastSyncAt
     })
-  }, [students, fees, payments, termInfo, receiptIndex, adminPin, lastSyncAt, isHydrated])
+  }, [students, fees, payments, termInfo, receiptIndex, lastSyncAt, isHydrated])
 
   const applyRemoteOp = (op) => {
-    if (op.device_id === localStorage.getItem('device_id')) {
+    if (op.device_id === getDeviceId()) {
       return
     }
     if (op.type === 'add_student') {
@@ -223,6 +220,10 @@ export const SchoolProvider = ({ children }) => {
         if (prev.some((payment) => payment.id === op.payload.id)) return prev
         return [...prev, op.payload]
       })
+      const parsedReceipt = parseReceiptIndex(op.payload.receipt_number)
+      if (parsedReceipt) {
+        setReceiptIndex((prev) => Math.max(prev, parsedReceipt + 1))
+      }
       return
     }
     if (op.type === 'issue_receipt') {
@@ -242,21 +243,7 @@ export const SchoolProvider = ({ children }) => {
       return
     }
     if (op.type === 'promote_students') {
-      setStudents((prev) =>
-        prev.map((student) => {
-          const currentIndex = classLevels.indexOf(student.class_level)
-          const nextClass =
-            currentIndex >= 0 && currentIndex < classLevels.length - 1
-              ? classLevels[currentIndex + 1]
-              : student.class_level
-          return {
-            ...student,
-            class_level: nextClass,
-            arrears: Number(student.arrears || 0),
-            adjusted_fee: 0
-          }
-        })
-      )
+      setStudents((prev) => promoteStudentRecords(prev, fees, payments))
       setPayments([])
       setReceiptIndex(1)
     }
@@ -275,7 +262,7 @@ export const SchoolProvider = ({ children }) => {
       return result
     } catch (error) {
       setSyncStatus('error')
-      setSyncError('Sync failed. Retrying in 60 seconds.')
+      setSyncError(`Sync failed: ${error.message || 'Unknown error'}. Retrying in 60 seconds.`)
       return { error }
     }
   }
@@ -291,7 +278,6 @@ export const SchoolProvider = ({ children }) => {
     payments,
     termInfo,
     classLevels,
-    adminUnlocked,
     isHydrated,
     syncStatus,
     syncError,
@@ -303,9 +289,6 @@ export const SchoolProvider = ({ children }) => {
     issueReceipt,
     updateFee,
     updateTermInfo,
-    verifyAdminPin,
-    lockAdmin,
-    changeAdminPin,
     promoteStudents,
     getAdjustedFee,
     getTotalPaid,
@@ -316,5 +299,3 @@ export const SchoolProvider = ({ children }) => {
 
   return <SchoolContext.Provider value={value}>{children}</SchoolContext.Provider>
 }
-
-export const useSchool = () => useContext(SchoolContext)

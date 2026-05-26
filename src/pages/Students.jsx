@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { useSchool } from '../context/SchoolContext.jsx'
+import { useSchool } from '../context/school-context.js'
 import StudentTable from '../components/StudentTable.jsx'
 import AddStudentModal from '../components/AddStudentModal.jsx'
 import StudentDetailDrawer from '../components/StudentDetailDrawer.jsx'
 import InstallmentModal from '../components/InstallmentModal.jsx'
-import AdminPinModal from '../components/AdminPinModal.jsx'
+import { useAuth } from '../context/auth-context.js'
+import { downloadCsv } from '../utils/csvExport.js'
 
 function Students() {
   const {
@@ -18,15 +19,13 @@ function Students() {
     payments,
     issueReceipt,
     logPayment,
-    verifyAdminPin,
     getLastPaymentDate,
     isHydrated
   } = useSchool()
+  const { isAdmin } = useAuth()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [detailStudent, setDetailStudent] = useState(null)
   const [paymentStudent, setPaymentStudent] = useState(null)
-  const [arrearsUnlocked, setArrearsUnlocked] = useState(false)
-  const [isPinOpen, setIsPinOpen] = useState(false)
 
   const detailPayments = useMemo(() => {
     if (!detailStudent) return []
@@ -49,33 +48,9 @@ function Students() {
       payment.method,
       payment.issued ? 'Yes' : 'No'
     ])
-    if (rows.length === 0) {
-      return
-    }
-    const csv = [header, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${student.first_name}-${student.last_name}-ledger.csv`
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadCsv(`${student.first_name}-${student.last_name}-ledger.csv`, header, rows)
   }
 
-  const handleUnlockArrears = (student) => {
-    setIsPinOpen(true)
-  }
-
-  const handlePinVerify = (pin) => {
-    const ok = verifyAdminPin(pin)
-    if (ok) {
-      setArrearsUnlocked(true)
-      setIsPinOpen(false)
-    }
-    return ok
-  }
 
   return (
     <section className="flex flex-col gap-6">
@@ -109,8 +84,7 @@ function Students() {
         onOpenDetails={setDetailStudent}
         onLogPayment={setPaymentStudent}
         onExportLedger={handleExportLedger}
-        onUnlockArrears={handleUnlockArrears}
-        arrearsUnlocked={arrearsUnlocked}
+        arrearsUnlocked={isAdmin}
         getLastPaymentDate={getLastPaymentDate}
       />
 
@@ -136,20 +110,15 @@ function Students() {
         }}
       />
 
-      <InstallmentModal
-        isOpen={Boolean(paymentStudent)}
-        entity={paymentStudent}
-        balance={paymentStudent ? getOutstanding(paymentStudent.id) : 0}
-        onClose={() => setPaymentStudent(null)}
-        onSubmit={handleLogPayment}
-      />
-
-      <AdminPinModal
-        isOpen={isPinOpen}
-        onClose={() => setIsPinOpen(false)}
-        onVerify={handlePinVerify}
-        allowBackdropClose
-      />
+      {paymentStudent ? (
+        <InstallmentModal
+          isOpen
+          entity={paymentStudent}
+          balance={getOutstanding(paymentStudent.id)}
+          onClose={() => setPaymentStudent(null)}
+          onSubmit={handleLogPayment}
+        />
+      ) : null}
     </section>
   )
 }
