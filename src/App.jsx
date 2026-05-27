@@ -47,32 +47,15 @@ function App() {
           <div className="absolute right-0 top-40 h-72 w-72 rounded-full bg-[#cfe5d2] opacity-45 blur-[120px]"></div>
         </div>
         <div className="relative mx-auto flex min-h-screen max-w-[1240px] flex-col gap-6 px-4 py-5 md:flex-row md:px-6 md:py-6">
-          {sidebarOpen ? (
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 z-40 bg-[#1f1b17]/40 backdrop-blur md:hidden"
-              aria-label="Close sidebar"
-            />
-          ) : null}
-          <div
-            className={`fixed inset-y-0 left-0 z-50 w-[280px] transform transition md:static md:translate-x-0 md:w-[260px] ${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            } hidden md:block`}
-          >
-            <Sidebar onClose={() => setSidebarOpen(false)} showClose />
-          </div>
-          <main className="flex-1 rounded-[28px] border border-[#e5ddd2] bg-[#fbf9f5]/80 p-4 pb-24 shadow-[0_18px_45px_-30px_rgba(31,27,23,0.6)] backdrop-blur md:p-6 md:pb-6">
-            <div className="mb-4 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-                className="rounded-full border border-[#1f1b17] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1f1b17] md:hidden"
-              >
-                Menu
-              </button>
+           <div
+             className={`fixed inset-y-0 left-0 z-50 w-[280px] transform transition md:static md:translate-x-0 md:w-[260px] ${
+               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+             } hidden md:block`}
+           >
+             <Sidebar onClose={() => setSidebarOpen(false)} showClose />
             </div>
-            <Routes>
+            <main className="flex-1 rounded-[28px] border border-[#e5ddd2] bg-[#fbf9f5]/80 p-4 pb-24 shadow-[0_18px_45px_-30px_rgba(31,27,23,0.6)] backdrop-blur md:p-6 md:pb-6">
+              <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/students" element={<Students />} />
               <Route path="/receipts" element={<PendingReceipts />} />

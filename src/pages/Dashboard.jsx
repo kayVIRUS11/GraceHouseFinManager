@@ -27,7 +27,7 @@ function Dashboard() {
     getLastPaymentDate,
     addStudent
   } = useSchool()
-  const { signOut, isAdmin } = useAuth()
+   const { isAdmin } = useAuth()
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false)
   const [detailStudent, setDetailStudent] = useState(null)
   const [paymentStudent, setPaymentStudent] = useState(null)
@@ -99,25 +99,18 @@ function Dashboard() {
           Loading saved data...
         </div>
       ) : null}
-      <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#e6ded4] bg-white/80 p-5 shadow-[0_24px_50px_-40px_rgba(31,27,23,0.55)] md:p-6">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.28em] text-[#9c8f83] md:text-xs">{termInfo.term}</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1f1b17] md:text-2xl">Grace House School</h2>
-          <p className="mt-2 text-xs text-[#7c6f63] md:text-sm">Session {termInfo.session}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-2xl border border-dashed border-[#e5ddd2] bg-[#fdf7f0] px-4 py-3 text-sm text-[#7c6f63]">
-            Missing receipts: {missingReceipts.length}
-          </div>
-          <button
-            type="button"
-            onClick={signOut}
-            className="rounded-full border border-[#1f1b17] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
+       <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#e6ded4] bg-white/80 p-5 shadow-[0_24px_50px_-40px_rgba(31,27,23,0.55)] md:p-6">
+         <div>
+           <p className="text-[10px] uppercase tracking-[0.28em] text-[#9c8f83] md:text-xs">{termInfo.term}</p>
+           <h2 className="mt-2 text-xl font-semibold text-[#1f1b17] md:text-2xl">Grace House School</h2>
+           <p className="mt-2 text-xs text-[#7c6f63] md:text-sm">Session {termInfo.session}</p>
+         </div>
+         <div className="flex flex-wrap items-center gap-3">
+           <div className="rounded-2xl border border-dashed border-[#e5ddd2] bg-[#fdf7f0] px-4 py-3 text-sm text-[#7c6f63]">
+             Missing receipts: {missingReceipts.length}
+           </div>
+         </div>
+       </header>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -135,43 +128,43 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          label="Total students"
-          value={stats.totalStudents}
-          helper="Active roster"
-          className="p-4"
-          labelClassName="tracking-[0.2em]"
-          valueClassName="text-xl"
-          helperClassName="text-xs"
-        />
-        <StatsCard
-          label="Students cleared"
-          value={stats.cleared}
-          helper="Paid in full"
-          className="p-4"
-          labelClassName="tracking-[0.2em]"
-          valueClassName="text-xl"
-          helperClassName="text-xs"
-        />
-        <StatsCard
-          label="Students owing"
-          value={stats.owing}
-          helper="Outstanding balances"
-          className="p-4"
-          labelClassName="tracking-[0.2em]"
-          valueClassName="text-xl"
-          helperClassName="text-xs"
-        />
-        <StatsCard
-          label="Pending receipts"
-          value={stats.pendingReceipts}
-          helper="Awaiting issuance"
-          className="p-4"
-          labelClassName="tracking-[0.2em]"
-          valueClassName="text-xl"
-          helperClassName="text-xs"
-        />
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+           label="Total students"
+           value={stats.totalStudents}
+           helper="Active roster"
+           className="p-3"
+           labelClassName="tracking-[0.2em]"
+           valueClassName="text-lg"
+           helperClassName="text-xs"
+         />
+         <StatsCard
+           label="Students cleared"
+           value={stats.cleared}
+           helper="Paid in full"
+           className="p-3"
+           labelClassName="tracking-[0.2em]"
+           valueClassName="text-lg"
+           helperClassName="text-xs"
+         />
+         <StatsCard
+           label="Students owing"
+           value={stats.owing}
+           helper="Outstanding balances"
+           className="p-3"
+           labelClassName="tracking-[0.2em]"
+           valueClassName="text-lg"
+           helperClassName="text-xs"
+         />
+         <StatsCard
+           label="Pending receipts"
+           value={stats.pendingReceipts}
+           helper="Awaiting issuance"
+           className="p-3"
+           labelClassName="tracking-[0.2em]"
+           valueClassName="text-lg"
+           helperClassName="text-xs"
+         />
       </div>
 
       {missingReceipts.length > 0 ? (

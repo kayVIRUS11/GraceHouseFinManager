@@ -78,46 +78,46 @@ function StudentTable({
           <h2 className="text-lg font-semibold text-[#1f1b17]">Student fee directory</h2>
           <p className={`text-sm text-[#7c6f63] ${compact ? 'text-xs' : ''}`}>Search by name or filter by class.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search student"
-            className="rounded-full border border-[#e5ddd2] bg-white px-4 py-2 text-sm text-[#1f1b17]"
-          />
-          <select
-            value={filterClass}
-            onChange={(event) => setFilterClass(event.target.value)}
-            className="rounded-full border border-[#e5ddd2] bg-white px-4 py-2 text-sm text-[#1f1b17]"
-          >
-            <option value="All">All classes</option>
-            {classLevels.map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
-          <select
-            value={sortKey}
-            onChange={(event) => setSortKey(event.target.value)}
-            className="rounded-full border border-[#e5ddd2] bg-white px-4 py-2 text-sm text-[#1f1b17]"
-          >
-            <option value="name">Sort by name</option>
-            <option value="class">Sort by class</option>
-            <option value="outstanding">Sort by owing</option>
-            <option value="paid">Sort by paid</option>
-            <option value="lastPayment">Sort by last payment</option>
-          </select>
-          <button
-            type="button"
-            onClick={() =>
-              setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-            }
-            className="rounded-full border border-[#e5ddd2] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#7c6f63]"
-          >
-            {sortDirection === 'asc' ? 'Asc' : 'Desc'}
-          </button>
-        </div>
+         <div className="flex flex-nowrap items-center gap-2">
+           <input
+             value={query}
+             onChange={(event) => setQuery(event.target.value)}
+             placeholder="Search student"
+             className="rounded-full border border-[#e5ddd2] bg-white px-3 py-1 text-xs text-[#1f1b17]"
+           />
+           <select
+             value={filterClass}
+             onChange={(event) => setFilterClass(event.target.value)}
+             className="rounded-full border border-[#e5ddd2] bg-white px-3 py-1 text-xs text-[#1f1b17]"
+           >
+             <option value="All">All classes</option>
+             {classLevels.map((level) => (
+               <option key={level} value={level}>
+                 {level}
+               </option>
+             ))}
+           </select>
+           <select
+             value={sortKey}
+             onChange={(event) => setSortKey(event.target.value)}
+             className="rounded-full border border-[#e5ddd2] bg-white px-3 py-1 text-xs text-[#1f1b17]"
+           >
+             <option value="name">Sort by name</option>
+             <option value="class">Sort by class</option>
+             <option value="outstanding">Sort by owing</option>
+             <option value="paid">Sort by paid</option>
+             <option value="lastPayment">Sort by last payment</option>
+           </select>
+           <button
+             type="button"
+             onClick={() =>
+               setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+             }
+             className="rounded-full border border-[#e5ddd2] px-2 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#7c6f63]"
+           >
+             {sortDirection === 'asc' ? 'Asc' : 'Desc'}
+           </button>
+         </div>
       </div>
       <div className="md:hidden">
         <div className="grid gap-3 px-4 py-4">

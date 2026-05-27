@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutGrid, Users, Settings, Lock, Receipt } from 'lucide-react'
+import { LayoutGrid, Users, Settings, Receipt } from 'lucide-react'
 import { useSchool } from '../context/school-context.js'
 import { useAuth } from '../context/auth-context.js'
 
