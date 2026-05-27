@@ -7,6 +7,7 @@ import Admin from './pages/Admin.jsx'
 import PendingReceipts from './pages/PendingReceipts.jsx'
 import { useSchool } from './context/school-context.js'
 import AdminRoute from './components/AdminRoute.jsx'
+import MobileTabs from './components/MobileTabs.jsx'
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -57,11 +58,11 @@ function App() {
           <div
             className={`fixed inset-y-0 left-0 z-50 w-[280px] transform transition md:static md:translate-x-0 md:w-[260px] ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
+            } hidden md:block`}
           >
             <Sidebar onClose={() => setSidebarOpen(false)} showClose />
           </div>
-          <main className="flex-1 rounded-[28px] border border-[#e5ddd2] bg-[#fbf9f5]/80 p-4 shadow-[0_18px_45px_-30px_rgba(31,27,23,0.6)] backdrop-blur md:p-6">
+          <main className="flex-1 rounded-[28px] border border-[#e5ddd2] bg-[#fbf9f5]/80 p-4 pb-24 shadow-[0_18px_45px_-30px_rgba(31,27,23,0.6)] backdrop-blur md:p-6 md:pb-6">
             <div className="mb-4 flex items-center justify-between">
               <button
                 type="button"
@@ -86,6 +87,7 @@ function App() {
             </Routes>
           </main>
         </div>
+        <MobileTabs />
       </div>
     </BrowserRouter>
   )
