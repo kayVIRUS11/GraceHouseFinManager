@@ -55,10 +55,10 @@ function Admin() {
           <button
             type="button"
             onClick={() => setActiveTab('reports')}
-            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] ${
+            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-all duration-150 active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)] ${
               activeTab === 'reports'
-                ? 'border-[#1f1b17] bg-[#1f1b17] text-[#fef7ed]'
-                : 'border-[#e5ddd2] text-[#7c6f63]'
+                ? 'border-[#1f1b17] bg-[#1f1b17] text-[#fef7ed] hover:bg-[#3f372e]'
+                : 'border-[#e5ddd2] text-[#7c6f63] hover:border-[#1f1b17] hover:text-[#1f1b17]'
             }`}
           >
             Reports
@@ -66,10 +66,10 @@ function Admin() {
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] ${
+            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-all duration-150 active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)] ${
               activeTab === 'settings'
-                ? 'border-[#1f1b17] bg-[#1f1b17] text-[#fef7ed]'
-                : 'border-[#e5ddd2] text-[#7c6f63]'
+                ? 'border-[#1f1b17] bg-[#1f1b17] text-[#fef7ed] hover:bg-[#3f372e]'
+                : 'border-[#e5ddd2] text-[#7c6f63] hover:border-[#1f1b17] hover:text-[#1f1b17]'
             }`}
           >
             Settings
@@ -142,7 +142,7 @@ function Admin() {
               <button
                 type="button"
                 onClick={() => updateTermInfo({ session, term })}
-                className="rounded-full bg-[#1f1b17] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed]"
+                className="rounded-full bg-[#1f1b17] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed] transition-all duration-150 active:scale-[0.97] hover:bg-[#3f372e] shadow-[0_4px_12px_-5px_rgba(31,27,23,0.3)]"
               >
                 Save term settings
               </button>
@@ -167,7 +167,7 @@ function Admin() {
             <button
               type="button"
               onClick={promoteStudents}
-              className="mt-4 rounded-full bg-[#f2c278] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#4d3510]"
+              className="mt-4 rounded-full bg-[#f2c278] hover:bg-[#eeb156] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#4d3510] transition-all duration-150 active:scale-[0.97] shadow-[0_4px_12px_-5px_rgba(242,194,120,0.4)]"
             >
               Promote students
             </button>

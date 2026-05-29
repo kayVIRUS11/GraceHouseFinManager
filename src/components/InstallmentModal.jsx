@@ -1,10 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { paymentMethods } from '../data/paymentMethods.js'
 import { formatCurrency } from '../utils/formatters.js'
 
 function InstallmentModal({ isOpen, entity, balance, onClose, onSubmit }) {
   const [amount, setAmount] = useState('')
   const [method, setMethod] = useState(paymentMethods[0].value)
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
   const amountValue = useMemo(() => Number(amount || 0), [amount])
   const newBalance = Math.max(balance - amountValue, 0)
@@ -13,7 +24,7 @@ function InstallmentModal({ isOpen, entity, balance, onClose, onSubmit }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1f1b17]/60 px-4 py-8 backdrop-blur">
-      <div className="w-full max-w-lg rounded-[28px] border border-[#efe6da] bg-[#fefaf4] p-6 shadow-[0_30px_60px_-30px_rgba(15,12,8,0.7)]">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[28px] border border-[#efe6da] bg-[#fefaf4] p-6 shadow-[0_30px_60px_-30px_rgba(15,12,8,0.7)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.26em] text-[#8b7c70]">

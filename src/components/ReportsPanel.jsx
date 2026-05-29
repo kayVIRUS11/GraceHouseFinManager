@@ -89,7 +89,7 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
           <button
             type="button"
             onClick={handleExportFull}
-            className="rounded-full bg-[#1f1b17] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed]"
+            className="rounded-full bg-[#1f1b17] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed] transition-all duration-150 hover:bg-[#3f372e] active:scale-95 shadow-[0_4px_12px_-5px_rgba(31,27,23,0.3)]"
           >
             Download full report
           </button>
@@ -107,7 +107,7 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
             <button
               type="button"
               onClick={() => handleExportSection('[data-section="summary"]', 'term-summary.pdf')}
-              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17] transition-all duration-150 hover:bg-[#1f1b17] hover:text-[#fef7ed] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
             >
               Download
             </button>
@@ -146,7 +146,7 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
             <button
               type="button"
               onClick={() => handleExportSection('[data-section="timeline"]', 'collections-timeline.pdf')}
-              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17] transition-all duration-150 hover:bg-[#1f1b17] hover:text-[#fef7ed] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
             >
               Download
             </button>
@@ -184,7 +184,7 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
             <button
               type="button"
               onClick={() => handleExportSection('[data-section="classes"]', 'class-breakdown.pdf')}
-              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17] transition-all duration-150 hover:bg-[#1f1b17] hover:text-[#fef7ed] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
             >
               Download
             </button>
@@ -219,7 +219,7 @@ function ReportsPanel({ students, payments, classLevels, getAdjustedFee, getOuts
             <button
               type="button"
               onClick={() => handleExportSection('[data-section="methods"]', 'payment-methods.pdf')}
-              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+              className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f1b17] transition-all duration-150 hover:bg-[#1f1b17] hover:text-[#fef7ed] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
             >
               Download
             </button>

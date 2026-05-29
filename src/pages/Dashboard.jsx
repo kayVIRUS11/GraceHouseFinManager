@@ -121,7 +121,7 @@ function Dashboard() {
           <button
             type="button"
             onClick={() => setIsStudentModalOpen(true)}
-            className="rounded-full bg-[#1f1b17] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed]"
+            className="rounded-full bg-[#1f1b17] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#fef7ed] transition-all duration-150 active:scale-[0.97] hover:bg-[#3f372e] shadow-[0_4px_12px_-5px_rgba(31,27,23,0.3)]"
           >
             Add student
           </button>
@@ -200,7 +200,7 @@ function Dashboard() {
             <button
               type="button"
               onClick={handleExportDebtors}
-              className="rounded-full border border-[#1f1b17] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+              className="rounded-full border border-[#1f1b17] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1f1b17] transition-all duration-150 hover:bg-[#1f1b17] hover:text-[#fef7ed] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
             >
               Export
             </button>

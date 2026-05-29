@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { formatCurrency } from '../utils/formatters.js'
 
 function StudentDetailDrawer({
@@ -11,6 +12,17 @@ function StudentDetailDrawer({
   onIssueReceipt,
   onLogPayment
 }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   if (!isOpen || !student) return null
 
   const issuedCount = payments.filter((payment) => payment.issued).length
@@ -84,7 +96,7 @@ function StudentDetailDrawer({
               <button
                 type="button"
                 onClick={onLogPayment}
-                className="rounded-full bg-[#1f1b17] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#fef7ed]"
+                className="rounded-full bg-[#1f1b17] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#fef7ed] transition-all duration-150 hover:bg-[#3f372e] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.2)]"
               >
                 Log payment
               </button>
@@ -115,7 +127,7 @@ function StudentDetailDrawer({
                           <button
                             type="button"
                             onClick={() => onIssueReceipt(payment.id)}
-                            className="rounded-full bg-[#f2c278] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#4d3510]"
+                            className="rounded-full bg-[#f2c278] hover:bg-[#eeb156] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#4d3510] transition-all duration-150 active:scale-95 shadow-[0_4px_10px_-6px_rgba(242,194,120,0.4)]"
                           >
                             Issue receipt
                           </button>

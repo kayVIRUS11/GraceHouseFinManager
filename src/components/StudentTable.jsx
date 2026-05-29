@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import QuickActionsMenu from './QuickActionsMenu.jsx'
 import { formatCurrency } from '../utils/formatters.js'
 
@@ -22,6 +23,26 @@ function StudentTable({
   const [filterClass, setFilterClass] = useState('All')
   const [sortKey, setSortKey] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
+
+  const SortIcon = ({ columnKey }) => {
+    if (sortKey !== columnKey) {
+      return <ArrowUpDown size={12} className="ml-1 inline-block opacity-30" />
+    }
+    return sortDirection === 'asc' ? (
+      <ArrowUp size={12} className="ml-1 inline-block text-[#1f1b17]" />
+    ) : (
+      <ArrowDown size={12} className="ml-1 inline-block text-[#1f1b17]" />
+    )
+  }
 
   const filtered = useMemo(() => {
     const result = students.filter((student) => {
@@ -73,52 +94,55 @@ function StudentTable({
 
   return (
     <div className={`rounded-3xl border border-[#e6ded4] bg-white/80 shadow-[0_18px_45px_-40px_rgba(31,27,23,0.6)] ${compact ? 'shadow-[0_10px_25px_-30px_rgba(31,27,23,0.5)]' : ''}`}>
-      <div className={`flex flex-wrap items-center justify-between gap-3 border-b border-[#efe6da] ${compact ? 'px-4 py-4' : 'px-6 py-5'}`}>
-        <div>
+      <div className={`flex flex-col gap-3 border-b border-[#efe6da] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between ${compact ? 'px-4 py-4' : 'px-6 py-5'}`}>
+        <div className="shrink-0">
           <h2 className="text-lg font-semibold text-[#1f1b17]">Student fee directory</h2>
           <p className={`text-sm text-[#7c6f63] ${compact ? 'text-xs' : ''}`}>Search by name or filter by class.</p>
         </div>
-         <div className="flex flex-nowrap items-center gap-2">
-           <input
-             value={query}
-             onChange={(event) => setQuery(event.target.value)}
-             placeholder="Search student"
-             className="rounded-full border border-[#e5ddd2] bg-white px-3 py-1 text-xs text-[#1f1b17]"
-           />
-           <select
-             value={filterClass}
-             onChange={(event) => setFilterClass(event.target.value)}
-             className="rounded-full border border-[#e5ddd2] bg-white px-3 py-1 text-xs text-[#1f1b17]"
-           >
-             <option value="All">All classes</option>
-             {classLevels.map((level) => (
-               <option key={level} value={level}>
-                 {level}
-               </option>
-             ))}
-           </select>
-           <select
-             value={sortKey}
-             onChange={(event) => setSortKey(event.target.value)}
-             className="rounded-full border border-[#e5ddd2] bg-white px-3 py-1 text-xs text-[#1f1b17]"
-           >
-             <option value="name">Sort by name</option>
-             <option value="class">Sort by class</option>
-             <option value="outstanding">Sort by owing</option>
-             <option value="paid">Sort by paid</option>
-             <option value="lastPayment">Sort by last payment</option>
-           </select>
-           <button
-             type="button"
-             onClick={() =>
-               setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-             }
-             className="rounded-full border border-[#e5ddd2] px-2 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#7c6f63]"
-           >
-             {sortDirection === 'asc' ? 'Asc' : 'Desc'}
-           </button>
-         </div>
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search student"
+            className="min-w-0 flex-1 rounded-full border border-[#e5ddd2] bg-white px-3 py-1.5 text-xs text-[#1f1b17] sm:w-36 sm:flex-initial"
+          />
+          <select
+            value={filterClass}
+            onChange={(event) => setFilterClass(event.target.value)}
+            className="min-w-0 flex-1 rounded-full border border-[#e5ddd2] bg-white px-3 py-1.5 text-xs text-[#1f1b17] sm:w-auto sm:flex-initial"
+          >
+            <option value="All">All classes</option>
+            {classLevels.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sortKey}
+            onChange={(event) => setSortKey(event.target.value)}
+            className="min-w-0 flex-1 rounded-full border border-[#e5ddd2] bg-white px-3 py-1.5 text-xs text-[#1f1b17] sm:w-auto sm:flex-initial"
+          >
+            <option value="name">Sort: Name</option>
+            <option value="class">Sort: Class</option>
+            <option value="outstanding">Sort: Owing</option>
+            <option value="paid">Sort: Paid</option>
+            <option value="lastPayment">Sort: Last payment</option>
+          </select>
+          <button
+            type="button"
+            onClick={() =>
+              setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+            }
+            title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#e5ddd2] text-[#7c6f63] transition hover:border-[#1f1b17] hover:text-[#1f1b17]"
+          >
+            {sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile card view */}
       <div className="md:hidden">
         <div className="grid gap-3 px-4 py-4">
           {filtered.map((student) => {
@@ -128,17 +152,23 @@ function StudentTable({
             const isCleared = outstanding <= 0
 
             return (
-              <div key={student.id} className="rounded-2xl border border-[#efe6da] bg-[#fefaf4] p-4">
+              <div
+                key={student.id}
+                onClick={() => onOpenDetails(student)}
+                className="group relative rounded-2xl border border-[#efe6da] bg-[#fefaf4] p-4 cursor-pointer transition-all hover:border-[#1f1b17]/30 hover:shadow-[0_8px_20px_-12px_rgba(31,27,23,0.3)] active:scale-[0.98]"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[#1f1b17]">{student.first_name} {student.last_name}</p>
+                    <p className="text-sm font-semibold text-[#1f1b17] group-hover:text-[#8b7c70] transition-colors">{student.first_name} {student.last_name}</p>
                     <p className="text-xs uppercase tracking-[0.2em] text-[#8b7c70]">{student.class_level}</p>
                   </div>
-                  <QuickActionsMenu
-                    onView={() => onOpenDetails(student)}
-                    onLogPayment={() => onLogPayment(student)}
-                    onExportLedger={() => onExportLedger(student)}
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <QuickActionsMenu
+                      onView={() => onOpenDetails(student)}
+                      onLogPayment={() => onLogPayment(student)}
+                      onExportLedger={() => onExportLedger(student)}
+                    />
+                  </div>
                 </div>
                 <div className="mt-4 grid gap-2 text-xs text-[#7c6f63]">
                   <div className="flex items-center justify-between">
@@ -159,7 +189,10 @@ function StudentTable({
                 <div className="mt-4 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => onViewHistory(student)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onViewHistory(student)
+                    }}
                     className="rounded-full border border-[#1f1b17] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1f1b17] transition hover:bg-[#1f1b17] hover:text-[#fef7ed]"
                   >
                     View history
@@ -175,16 +208,36 @@ function StudentTable({
           })}
         </div>
       </div>
+
+      {/* Desktop table view */}
       <div className="hidden overflow-x-auto md:block">
         <table className={`min-w-full text-left ${compact ? 'text-xs' : 'text-sm'}`}>
           <thead className="bg-[#fdf7f0] text-xs uppercase tracking-[0.2em] text-[#8b7c70]">
             <tr>
-              <th className="px-6 py-3">Student</th>
+              <th
+                className="cursor-pointer select-none px-6 py-3 transition hover:text-[#1f1b17]"
+                onClick={() => handleSort('name')}
+              >
+                Student
+                <SortIcon columnKey="name" />
+              </th>
               <th className="px-6 py-3">Term fee</th>
               {hideFinancialInputs ? null : <th className="px-6 py-3">Scholarship</th>}
               {hideFinancialInputs ? null : <th className="px-6 py-3">Arrears</th>}
-              <th className="px-6 py-3">Total paid</th>
-              <th className="px-6 py-3">Outstanding</th>
+              <th
+                className="cursor-pointer select-none px-6 py-3 transition hover:text-[#1f1b17]"
+                onClick={() => handleSort('paid')}
+              >
+                Total paid
+                <SortIcon columnKey="paid" />
+              </th>
+              <th
+                className="cursor-pointer select-none px-6 py-3 transition hover:text-[#1f1b17]"
+                onClick={() => handleSort('outstanding')}
+              >
+                Outstanding
+                <SortIcon columnKey="outstanding" />
+              </th>
               <th className="px-6 py-3">History</th>
               <th className="px-6 py-3"></th>
             </tr>
@@ -197,14 +250,18 @@ function StudentTable({
               const isCleared = outstanding <= 0
 
               return (
-                <tr key={student.id} className="text-[#1f1b17]">
+                <tr
+                  key={student.id}
+                  onClick={() => onOpenDetails(student)}
+                  className="text-[#1f1b17] hover:bg-[#fdf7f0]/60 cursor-pointer transition-colors"
+                >
                   <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
-                    <p className="font-semibold">{student.first_name} {student.last_name}</p>
+                    <p className="font-semibold transition-colors group-hover:text-[#8b7c70]">{student.first_name} {student.last_name}</p>
                     <p className="text-xs text-[#8b7c70]">{student.class_level}</p>
                   </td>
                   <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>{formatCurrency(fee)}</td>
                   {hideFinancialInputs ? null : (
-                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
+                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'} onClick={(e) => e.stopPropagation()}>
                       <input
                         type="number"
                         min="0"
@@ -218,7 +275,7 @@ function StudentTable({
                     </td>
                   )}
                   {hideFinancialInputs ? null : (
-                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
+                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'} onClick={(e) => e.stopPropagation()}>
                       <div className="grid gap-2">
                         <input
                           type="number"
@@ -254,13 +311,16 @@ function StudentTable({
                   <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
                     <button
                       type="button"
-                      onClick={() => onViewHistory(student)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onViewHistory(student)
+                      }}
                       className="rounded-full border border-[#1f1b17] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#1f1b17] transition hover:bg-[#1f1b17] hover:text-[#fef7ed]"
                     >
                       View
                     </button>
                   </td>
-                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'} onClick={(e) => e.stopPropagation()}>
                     <QuickActionsMenu
                       onView={() => onOpenDetails(student)}
                       onLogPayment={() => onLogPayment(student)}
@@ -268,8 +328,8 @@ function StudentTable({
                     />
                   </td>
                 </tr>
-              )}
-            )}
+              )
+            })}
           </tbody>
         </table>
       </div>

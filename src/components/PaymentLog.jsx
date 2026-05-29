@@ -11,7 +11,7 @@ function PaymentLog({ payments, issueReceipt, onExport }) {
         <button
           type="button"
           onClick={onExport}
-          className="rounded-full border border-[#1f1b17] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1f1b17]"
+          className="rounded-full border border-[#1f1b17] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1f1b17] transition-all duration-150 hover:bg-[#1f1b17] hover:text-[#fef7ed] active:scale-95 shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
         >
           Export ledger
         </button>
@@ -39,7 +39,7 @@ function PaymentLog({ payments, issueReceipt, onExport }) {
                   <button
                     type="button"
                     onClick={() => issueReceipt(payment.id)}
-                    className="rounded-full bg-[#f2c278] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#4d3510]"
+                    className="rounded-full bg-[#f2c278] hover:bg-[#eeb156] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#4d3510] transition-all duration-150 active:scale-95 shadow-[0_4px_10px_-6px_rgba(242,194,120,0.4)]"
                   >
                     Issue receipt
                   </button>

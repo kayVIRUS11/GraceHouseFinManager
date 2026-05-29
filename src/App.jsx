@@ -54,7 +54,7 @@ function App() {
            >
              <Sidebar onClose={() => setSidebarOpen(false)} showClose />
             </div>
-            <main className="flex-1 rounded-[28px] border border-[#e5ddd2] bg-[#fbf9f5]/80 p-4 pb-24 shadow-[0_18px_45px_-30px_rgba(31,27,23,0.6)] backdrop-blur md:p-6 md:pb-6">
+            <main className="flex-1 min-w-0 rounded-[28px] border border-[#e5ddd2] bg-[#fbf9f5]/80 p-4 pb-24 shadow-[0_18px_45px_-30px_rgba(31,27,23,0.6)] backdrop-blur md:p-6 md:pb-6">
               <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/students" element={<Students />} />

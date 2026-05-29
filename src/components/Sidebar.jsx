@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutGrid, Users, Settings, Receipt } from 'lucide-react'
+import { LayoutGrid, Users, Settings, Receipt, LogOut } from 'lucide-react'
 import { useSchool } from '../context/school-context.js'
 import { useAuth } from '../context/auth-context.js'
 
 const navLinkClass = ({ isActive }) =>
-  `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+  `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-150 active:scale-[0.98] ${
     isActive
       ? 'bg-[#1f1b17] text-[#fef7ed] shadow-[0_10px_20px_-12px_rgba(31,27,23,0.8)]'
       : 'text-[#4d443b] hover:bg-[#efe6da]'
@@ -12,7 +12,7 @@ const navLinkClass = ({ isActive }) =>
 
 function Sidebar({ onClose, showClose = false }) {
   const { termInfo } = useSchool()
-  const { isAdmin, role } = useAuth()
+  const { isAdmin, role, signOut } = useAuth()
 
   return (
     <aside className="h-full w-full shrink-0 rounded-[28px] border border-[#e5ddd2] bg-[#fefaf4] p-6 shadow-[0_18px_45px_-35px_rgba(31,27,23,0.55)]">
@@ -22,7 +22,7 @@ function Sidebar({ onClose, showClose = false }) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full border border-[#e5ddd2] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#7c6f63]"
+              className="rounded-full border border-[#e5ddd2] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#7c6f63] active:scale-95 transition-all"
             >
               Close
             </button>
@@ -71,6 +71,13 @@ function Sidebar({ onClose, showClose = false }) {
             Generate receipts by June 10
           </p>
         </div>
+        <button
+          onClick={signOut}
+          className="flex w-full items-center justify-center gap-2 rounded-full border border-[#efe6da] bg-white hover:bg-[#e6ded4]/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#8b7c70] transition-all duration-150 hover:text-[#1f1b17] active:scale-[0.97] shadow-[0_4px_10px_-6px_rgba(31,27,23,0.15)]"
+        >
+          <LogOut size={14} />
+          Sign out
+        </button>
       </div>
     </aside>
   )
