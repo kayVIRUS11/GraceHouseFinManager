@@ -107,7 +107,7 @@ function Dashboard() {
          </div>
          <div className="flex flex-wrap items-center gap-3">
            <div className="rounded-2xl border border-dashed border-[#e5ddd2] bg-[#fdf7f0] px-4 py-3 text-sm text-[#7c6f63]">
-             Missing receipts: {missingReceipts.length}
+              Pending receipts: {missingReceipts.length}
            </div>
          </div>
        </header>
@@ -169,7 +169,7 @@ function Dashboard() {
 
       {missingReceipts.length > 0 ? (
         <div className="rounded-3xl border border-[#f1d9b5] bg-[#fff5e4] p-5 text-sm text-[#7a4d0d]">
-          Missing receipts alert: {missingReceipts.length} payment(s) have no issued receipt.
+          Pending receipts alert: {missingReceipts.length} payment(s) haven't been issued a receipt.
         </div>
       ) : null}
 
