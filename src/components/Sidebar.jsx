@@ -62,9 +62,11 @@ function Sidebar({ onClose, showClose = false }) {
             </NavLink>
           ) : null}
         </nav>
-        <div className="rounded-2xl border border-[#efe6da] bg-white px-4 py-3 text-xs text-[#7c6f63]">
-          Signed in role: <span className="font-semibold text-[#1f1b17]">{role}</span>
-        </div>
+        {isAdmin ? (
+          <div className="rounded-2xl border border-[#efe6da] bg-white px-4 py-3 text-xs text-[#7c6f63]">
+            Signed in role: <span className="font-semibold text-[#1f1b17]">{role}</span>
+          </div>
+        ) : null}
         <div className="rounded-2xl border border-dashed border-[#e5ddd2] px-4 py-4">
           <p className="text-xs text-[#8b7c70]">Next payout reminder</p>
           <p className="mt-2 text-sm font-semibold text-[#1f1b17]">

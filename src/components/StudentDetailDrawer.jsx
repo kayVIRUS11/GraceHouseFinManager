@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { formatCurrency } from '../utils/formatters.js'
 
 function StudentDetailDrawer({
@@ -28,7 +29,7 @@ function StudentDetailDrawer({
   const issuedCount = payments.filter((payment) => payment.issued).length
   const unissuedCount = payments.length - issuedCount
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#1f1b17]/40 backdrop-blur px-4 py-6"
       onClick={onClose}
@@ -147,7 +148,8 @@ function StudentDetailDrawer({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

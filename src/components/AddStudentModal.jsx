@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 function AddStudentModal({ isOpen, classLevels, onClose, onSave }) {
   const [form, setForm] = useState({
@@ -33,9 +34,17 @@ function AddStudentModal({ isOpen, classLevels, onClose, onSave }) {
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1f1b17]/60 px-4 py-8 backdrop-blur">
-      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-[28px] border border-[#efe6da] bg-[#fefaf4] p-6 shadow-[0_30px_60px_-30px_rgba(15,12,8,0.7)]">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#1f1b17]/60 px-4 py-8 backdrop-blur"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-[28px] border border-[#efe6da] bg-[#fefaf4] p-6 shadow-[0_30px_60px_-30px_rgba(15,12,8,0.7)]"
+        onClick={(event) => event.stopPropagation()}
+        role="presentation"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.26em] text-[#8b7c70]">New student</p>
@@ -134,7 +143,8 @@ function AddStudentModal({ isOpen, classLevels, onClose, onSave }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

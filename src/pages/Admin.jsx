@@ -4,6 +4,7 @@ import ReportsPanel from '../components/ReportsPanel.jsx'
 import { useAuth } from '../context/auth-context.js'
 import StatsCard from '../components/StatsCard.jsx'
 import { formatCurrency } from '../utils/formatters.js'
+import ConfirmAdminModal from '../components/ConfirmAdminModal.jsx'
 
 function Admin() {
   const {
@@ -23,6 +24,7 @@ function Admin() {
   const [session, setSession] = useState(termInfo.session)
   const [term, setTerm] = useState(termInfo.term)
   const [activeTab, setActiveTab] = useState('reports')
+  const [isPromoteOpen, setIsPromoteOpen] = useState(false)
 
   const reportStats = useMemo(() => {
     const totalExpected = students.reduce(
@@ -166,7 +168,7 @@ function Admin() {
             </p>
             <button
               type="button"
-              onClick={promoteStudents}
+              onClick={() => setIsPromoteOpen(true)}
               className="mt-4 rounded-full bg-[#f2c278] hover:bg-[#eeb156] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#4d3510] transition-all duration-150 active:scale-[0.97] shadow-[0_4px_12px_-5px_rgba(242,194,120,0.4)]"
             >
               Promote students
@@ -175,6 +177,17 @@ function Admin() {
         </div>
       </div>
       ) : null}
+      <ConfirmAdminModal
+        isOpen={isPromoteOpen}
+        title="Promote all students"
+        message="This will move every student to the next class and carry outstanding balances forward."
+        confirmLabel="Promote"
+        onCancel={() => setIsPromoteOpen(false)}
+        onConfirm={() => {
+          promoteStudents()
+          setIsPromoteOpen(false)
+        }}
+      />
     </section>
   )
 }

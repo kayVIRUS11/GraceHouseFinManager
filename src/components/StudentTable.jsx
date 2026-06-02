@@ -3,6 +3,17 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import QuickActionsMenu from './QuickActionsMenu.jsx'
 import { formatCurrency } from '../utils/formatters.js'
 
+function SortIcon({ active, direction }) {
+  if (!active) {
+    return <ArrowUpDown size={12} className="ml-1 inline-block opacity-30" />
+  }
+  return direction === 'asc' ? (
+    <ArrowUp size={12} className="ml-1 inline-block text-[#1f1b17]" />
+  ) : (
+    <ArrowDown size={12} className="ml-1 inline-block text-[#1f1b17]" />
+  )
+}
+
 function StudentTable({
   students,
   classLevels,
@@ -23,6 +34,7 @@ function StudentTable({
   const [filterClass, setFilterClass] = useState('All')
   const [sortKey, setSortKey] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
+  const [editingStudentId, setEditingStudentId] = useState(null)
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -33,15 +45,10 @@ function StudentTable({
     }
   }
 
-  const SortIcon = ({ columnKey }) => {
-    if (sortKey !== columnKey) {
-      return <ArrowUpDown size={12} className="ml-1 inline-block opacity-30" />
-    }
-    return sortDirection === 'asc' ? (
-      <ArrowUp size={12} className="ml-1 inline-block text-[#1f1b17]" />
-    ) : (
-      <ArrowDown size={12} className="ml-1 inline-block text-[#1f1b17]" />
-    )
+  const sortState = {
+    name: sortKey === 'name',
+    paid: sortKey === 'paid',
+    outstanding: sortKey === 'outstanding'
   }
 
   const filtered = useMemo(() => {
@@ -143,7 +150,7 @@ function StudentTable({
       </div>
 
       {/* Mobile card view */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <div className="grid gap-3 px-4 py-4">
           {filtered.map((student) => {
             const fee = getAdjustedFee(student)
@@ -167,6 +174,8 @@ function StudentTable({
                       onView={() => onOpenDetails(student)}
                       onLogPayment={() => onLogPayment(student)}
                       onExportLedger={() => onExportLedger(student)}
+                      onEditFinancials={() => setEditingStudentId(student.id)}
+                      showEditFinancials={!hideFinancialInputs}
                     />
                   </div>
                 </div>
@@ -199,7 +208,7 @@ function StudentTable({
                   </button>
                   {!hideFinancialInputs ? (
                     <span className="text-[10px] uppercase tracking-[0.18em] text-[#8b7c70]">
-                      {arrearsUnlocked ? 'Admin access' : 'Admin only'}
+                      {arrearsUnlocked ? 'Edit in menu' : 'Admin only'}
                     </span>
                   ) : null}
                 </div>
@@ -210,7 +219,7 @@ function StudentTable({
       </div>
 
       {/* Desktop table view */}
-      <div className="hidden overflow-x-auto md:block">
+      <div className="hidden overflow-x-auto lg:block">
         <table className={`min-w-full text-left ${compact ? 'text-xs' : 'text-sm'}`}>
           <thead className="bg-[#fdf7f0] text-xs uppercase tracking-[0.2em] text-[#8b7c70]">
             <tr>
@@ -219,7 +228,7 @@ function StudentTable({
                 onClick={() => handleSort('name')}
               >
                 Student
-                <SortIcon columnKey="name" />
+                <SortIcon active={sortState.name} direction={sortDirection} />
               </th>
               <th className="px-6 py-3">Term fee</th>
               {hideFinancialInputs ? null : <th className="px-6 py-3">Scholarship</th>}
@@ -229,14 +238,14 @@ function StudentTable({
                 onClick={() => handleSort('paid')}
               >
                 Total paid
-                <SortIcon columnKey="paid" />
+                <SortIcon active={sortState.paid} direction={sortDirection} />
               </th>
               <th
                 className="cursor-pointer select-none px-6 py-3 transition hover:text-[#1f1b17]"
                 onClick={() => handleSort('outstanding')}
               >
                 Outstanding
-                <SortIcon columnKey="outstanding" />
+                <SortIcon active={sortState.outstanding} direction={sortDirection} />
               </th>
               <th className="px-6 py-3">History</th>
               <th className="px-6 py-3"></th>
@@ -261,8 +270,8 @@ function StudentTable({
                   </td>
                   <td className={compact ? 'px-4 py-3' : 'px-6 py-4'}>{formatCurrency(fee)}</td>
                   {hideFinancialInputs ? null : (
-                    <td className={compact ? 'px-4 py-3' : 'px-6 py-4'} onClick={(e) => e.stopPropagation()}>
-                      <input
+                  <td className={compact ? 'px-4 py-3' : 'px-6 py-4'} onClick={(e) => e.stopPropagation()}>
+                    <input
                         type="number"
                         min="0"
                         value={student.adjusted_fee || ''}
@@ -270,7 +279,8 @@ function StudentTable({
                           updateStudent(student.id, { adjusted_fee: Number(event.target.value || 0) })
                         }
                         placeholder="0"
-                        className="w-24 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm"
+                        disabled={editingStudentId !== student.id}
+                        className="w-24 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm disabled:bg-[#fdf7f0]"
                       />
                     </td>
                   )}
@@ -285,7 +295,7 @@ function StudentTable({
                             updateStudent(student.id, { arrears: Number(event.target.value || 0) })
                           }
                           placeholder="0"
-                          disabled={!arrearsUnlocked}
+                          disabled={!arrearsUnlocked || editingStudentId !== student.id}
                           className="w-24 rounded-xl border border-[#e5ddd2] bg-white px-3 py-2 text-sm disabled:bg-[#fdf7f0]"
                         />
                         {!arrearsUnlocked ? (
@@ -325,6 +335,8 @@ function StudentTable({
                       onView={() => onOpenDetails(student)}
                       onLogPayment={() => onLogPayment(student)}
                       onExportLedger={() => onExportLedger(student)}
+                      onEditFinancials={() => setEditingStudentId(student.id)}
+                      showEditFinancials={!hideFinancialInputs}
                     />
                   </td>
                 </tr>

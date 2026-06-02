@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { MoreVertical } from 'lucide-react'
 
-function QuickActionsMenu({ onView, onLogPayment, onExportLedger }) {
+function QuickActionsMenu({ onView, onLogPayment, onExportLedger, onEditFinancials, showEditFinancials = false }) {
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
   const buttonRef = useRef(null)
@@ -88,6 +88,18 @@ function QuickActionsMenu({ onView, onLogPayment, onExportLedger }) {
               >
                 Export ledger
               </button>
+              {showEditFinancials ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onEditFinancials()
+                    setOpen(false)
+                  }}
+                  className="w-full px-4 py-2 text-left text-[#1f1b17] hover:bg-[#fdf7f0]"
+                >
+                  Edit financials
+                </button>
+              ) : null}
             </div>,
             document.body
           )
